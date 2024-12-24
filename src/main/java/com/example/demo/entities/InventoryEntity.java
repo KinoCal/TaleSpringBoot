@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,12 +8,10 @@ import jakarta.persistence.*;
 public class InventoryEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Automatically generates ID
+    @GeneratedValue(strategy = GenerationType.AUTO) // Automatically generates ID
     private Long id;
 
-    @Column(unique = true, nullable = false)
     private String username;
-
     private String name;
     private String type;
     private int quantity;

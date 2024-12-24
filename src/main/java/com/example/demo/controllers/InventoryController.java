@@ -21,6 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.entities.PlayerEntity;
 import com.example.demo.repositories.PlayerRepository;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/inventories")
 public class InventoryController {
@@ -69,22 +71,31 @@ public class InventoryController {
 
 
     @PutMapping("/update")
+    @Transactional
     public ResponseEntity<?> updateInventory(@RequestBody List<InventoryEntity> updatedInventoryList) {
         if (updatedInventoryList == null || updatedInventoryList.isEmpty()) {
             return ResponseEntity.badRequest().body("Inventory list cannot be null or empty");
         }
 
-        // Retrieve username from the first inventory item (assuming all belong to the same player)
         String username = updatedInventoryList.get(0).getUsername();
+        List<InventoryEntity> existingInventory = inventoryRepository.findAllByUsername(username);
 
-        // Delete existing inventory for the user
-        inventoryRepository.deleteAllByUsername(username);
+        // Update existing rows
+        for (int i = 0; i < existingInventory.size(); i++) {
+            System.out.println(updatedInventoryList.get(i).getName());
 
-        // Save the updated inventory
-        inventoryRepository.saveAll(updatedInventoryList);
+            existingInventory.get(i).setName(updatedInventoryList.get(i).getName());
+            existingInventory.get(i).setType(updatedInventoryList.get(i).getType());
+            existingInventory.get(i).setQuantity(updatedInventoryList.get(i).getQuantity());
+
+        }
+
+        // Save changes
+        inventoryRepository.saveAll(existingInventory);
 
         return ResponseEntity.ok("Inventory updated successfully");
     }
+
 
 
 }
